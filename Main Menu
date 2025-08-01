@@ -1,0 +1,100 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
+
+public class MainMenuManager : MonoBehaviour
+{
+    [Header("Paneles")]
+    [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private GameObject optionsPanel;
+    [SerializeField] private GameObject routesPanel;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource hoverSound;
+    [SerializeField] private AudioSource clickSound;
+
+    [Header("Título")]
+    [SerializeField] private TextMeshProUGUI titleText;
+    private float glowIntensity = 0f;
+    private bool increasing = true;
+
+    void Start()
+    {
+        // Inicializar paneles
+        mainMenuPanel.SetActive(true);
+        optionsPanel.SetActive(false);
+        routesPanel.SetActive(false);
+
+        // Efecto de título resplandeciente
+        InvokeRepeating("PulseTitleGlow", 0f, 0.02f);
+    }
+
+    void PulseTitleGlow()
+    {
+        if (increasing)
+        {
+            glowIntensity += 0.01f;
+            if (glowIntensity >= 1f) increasing = false;
+        }
+        else
+        {
+            glowIntensity -= 0.01f;
+            if (glowIntensity <= 0f) increasing = true;
+        }
+
+        titleText.fontMaterial.SetFloat(ShaderUtilities.ID_GlowPower, glowIntensity);
+    }
+
+    // --- Botones Principales ---
+    public void OnNewGameClick()
+    {
+        clickSound.Play();
+        mainMenuPanel.SetActive(false);
+        routesPanel.SetActive(true);
+    }
+
+    public void OnOptionsClick()
+    {
+        clickSound.Play();
+        mainMenuPanel.SetActive(false);
+        optionsPanel.SetActive(true);
+    }
+
+    public void OnQuitClick()
+    {
+        clickSound.Play();
+        Application.Quit();
+    }
+
+    // --- Rutas ---
+    public void LoadRoute(int routeNumber)
+    {
+        clickSound.Play();
+        SceneManager.LoadScene("Route_" + routeNumber); // Ej: "Route_1"
+    }
+
+    // --- Opciones ---
+    public void SetVolume(float volume)
+    {
+        AudioListener.volume = volume;
+    }
+
+    public void SetFullscreen(bool isFullscreen)
+    {
+        Screen.fullScreen = isFullscreen;
+    }
+
+    public void OnBackFromOptions()
+    {
+        clickSound.Play();
+        optionsPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
+    }
+
+    // --- Efectos de Hover ---
+    public void OnButtonHover()
+    {
+        hoverSound.Play();
+    }
+}
